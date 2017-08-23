@@ -56,6 +56,10 @@ class DeepDiff(ResultDict):
         Normally ignore_order does not report duplicates and repetition changes.
         In order to report repetitions, set report_repetition=True in addition to ignore_order=True
 
+    ignore_types : Boolean, default=False ignores types compare.
+        In some cases (specially when classes created dynamicly using meta classes) 
+        comparing the types does not give valuable information.
+         
     report_repetition : Boolean, default=False reports repetitions when set True
         ONLY when ignore_order is set True too. This works for iterables.
         This feature currently is experimental and is not production ready.
@@ -612,6 +616,7 @@ class DeepDiff(ResultDict):
                  t1,
                  t2,
                  ignore_order=False,
+                 ignore_types=False,
                  report_repetition=False,
                  significant_digits=None,
                  exclude_paths=set(),
@@ -626,6 +631,7 @@ class DeepDiff(ResultDict):
                 "exclude_paths, exclude_types, verbose_level and view.") % ', '.join(kwargs.keys()))
 
         self.ignore_order = ignore_order
+        self.ignore_types = ignore_types
         self.report_repetition = report_repetition
         self.exclude_paths = set(exclude_paths)
         self.exclude_types = set(exclude_types)
@@ -1073,7 +1079,7 @@ class DeepDiff(ResultDict):
         if self.__skip_this(level):
             return
 
-        if type(level.t1) != type(level.t2):
+        if type(level.t1) != type(level.t2) and not self.ignore_types:
             self.__diff_types(level)
 
         elif isinstance(level.t1, strings):
